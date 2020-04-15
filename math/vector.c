@@ -231,7 +231,7 @@ Vec2ToStr
 с количеством знаков после запятой prec.
 */
 void Vec2ToStr( char* out, const vec2_t* v, int prec ) {
-    sprintf( out, "%.*f %.*f", prec, v[0], prec, v[1] );
+    sprintf( out, "%.*f %.*f", prec, v->m[0], prec, v->m[1] );
 }
 
 /*
@@ -517,7 +517,7 @@ Vec3ToStr
 с количеством знаков после запятой prec.
 */
 void Vec3ToStr( char* out, const vec3_t* v, int prec ) {
-    sprintf( out, "%.*f %.*f %.*f", prec, v[0], prec, v[1], prec, v[2] );
+    sprintf( out, "%.*f %.*f %.*f", prec, v->m[0], prec, v->m[1], prec, v->m[2] );
 }
 
 /*
@@ -791,7 +791,7 @@ Vec4ToStr
 */
 void Vec4ToStr( char* out, const vec4_t* v, int prec ) {
     sprintf( out, "%.*f %.*f %.*f %.*f",
-             prec, v[0], prec, v[1], prec, v[2], prec, v[3] );
+             prec, v->m[0], prec, v->m[1], prec, v->m[2], prec, v->m[3] );
 }
 
 /*

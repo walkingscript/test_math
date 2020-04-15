@@ -113,27 +113,42 @@ void Mat2Scale( mat2_t* m, float s ) {
 /*
 Mat2MulVec2
 
-Умножение матрицы 2-ого порядка на вектор.
+Умножение матрицы 2-ого порядка на вектор-столбец.
 */
 void Mat2MulVec2( vec2_t* out, const mat2_t* m, const vec2_t* v ) {
     out->x = m->m[0] * v->m[0] + m->m[1] * v->m[1];
     out->y = m->m[2] * v->m[0] + m->m[3] * v->m[1];
 }
 
-void Vec2MulMat2( vec2_t* out, const vec2_t* v, const mat2_t* m ) {
+/*
+Vec2MulMat2
 
+Умножение вектора-строки на матрицу 2-ого порядка.
+*/
+void Vec2MulMat2( vec2_t* out, const vec2_t* v, const mat2_t* m ) {
+    out->x = v->m[0] * m->m[0] + v->m[1] * m->m[2];
+    out->y = v->m[0] * m->m[1] + v->m[1] * m->m[3];
 }
 
 void Mat2Mul( mat2_t* out, const mat2_t* a, const mat2_t* b ) {
-
+    out->m[0] = a->m[0] * b->m[0];
+    out->m[1] = a->m[1] * b->m[1];
+    out->m[2] = a->m[2] * b->m[2];
+    out->m[3] = a->m[3] * b->m[3];
 }
 
 void Mat2Add( mat2_t* out, const mat2_t* a, const mat2_t* b ) {
-
+    out->m[0] = a->m[0] + b->m[0];
+    out->m[1] = a->m[1] + b->m[1];
+    out->m[2] = a->m[2] + b->m[2];
+    out->m[3] = a->m[3] + b->m[3];
 }
 
 void Mat2Sub( mat2_t* out, const mat2_t* a, const mat2_t* b ) {
-    
+    out->m[0] = a->m[0] - b->m[0];
+    out->m[1] = a->m[1] - b->m[1];
+    out->m[2] = a->m[2] - b->m[2];
+    out->m[3] = a->m[3] - b->m[3];
 }
 
 /*
@@ -142,7 +157,7 @@ Mat2Cmp
 Сравнение матриц.
 */
 mbool_t Mat2Cmp( const mat2_t* a, const mat2_t* b ) {
-
+    return Vec2Cmp(&a->a, &b->a) && Vec2Cmp(&a->b, &b->b);
 }
 
 mbool_t Mat2CmpEps( const mat2_t* a, const mat2_t* b, float eps ) {
@@ -156,10 +171,13 @@ mbool_t Mat2IsDiag( const mat2_t* m ) {
 /*
 Mat2IsIdent
 
-Вернуть mtrue если матрица m является единичной (используется eps). Иначе вернуть mfalse.
+Вернуть mtrue если матрица m является единичной (используется eps). 
+Иначе вернуть mfalse.
+Матрица является единичной, если все элементы стоящие не на главной 
+диагонали равны 0.
 */
 mbool_t Mat2IsIdent( const mat2_t* m ) {
-
+    
 }
 
 /*
@@ -198,11 +216,16 @@ void Mat2ToPrettyStr( char* out, const mat2_t* m, int prec ) {
 }
 
 void Mat2ToMat3( mat3_t* out, const mat2_t* m ) {
-
+    Vec2ToVec3(&out->a, &m->a);
+    Vec2ToVec3(&out->b, &m->b);
+    Vec3Zero(&out->c);
 }
 
 void Mat2ToMat4( mat4_t* out, const mat2_t* m ) {
-
+    Vec2ToVec4(&out->a, &m->a);
+    Vec2ToVec4(&out->b, &m->b);
+    Vec4Zero(&out->c);
+    Vec4Zero(&out->d);
 }
 
 /*
@@ -291,7 +314,6 @@ void Mat3Ident( mat3_t* m ) {
     m->a.x = 1.0f;
     m->b.y = 1.0f;
     m->c.z = 1.0f;
-
     // остальные значения устанавливаем в 0.0f
     m->a.y = 0.0f;
     m->a.z = 0.0f;
@@ -366,12 +388,26 @@ void Mat3Scale( mat3_t* m, float s ) {
     m->m[8] *= s;
 }
 
-void Mat3MulVec3( vec3_t* out, const mat3_t* m, const vec3_t* v ) {
+/*
+Mat3MulVec3
 
+Умножение матрицы 3-го порядка на вектор-столбец.
+*/
+void Mat3MulVec3( vec3_t* out, const mat3_t* m, const vec3_t* v ) {
+    out->x = m->m[0] * v->m[0] + m->m[1] * v->m[1] + m->m[2] * v->m[2];
+    out->y = m->m[3] * v->m[0] + m->m[4] * v->m[1] + m->m[5] * v->m[2];
+    out->z = m->m[6] * v->m[0] + m->m[7] * v->m[1] + m->m[8] * v->m[2];
 }
 
-void Vec3MulMat3( vec3_t* out, const vec3_t* v, const mat3_t* m ) {
+/*
+Vec3MulMat3
 
+Умножение вектора-строки на матрицу 3-го порядка.
+*/
+void Vec3MulMat3( vec3_t* out, const vec3_t* v, const mat3_t* m ) {
+    out->x = v->m[0] * m->m[0] + v->m[1] * m->m[3] + v->m[2] * m->m[6];
+    out->y = v->m[0] * m->m[1] + v->m[1] * m->m[4] + v->m[2] * m->m[7];
+    out->z = v->m[0] * m->m[2] + v->m[1] * m->m[5] + v->m[2] * m->m[8];
 }
 
 /*
@@ -431,13 +467,26 @@ Mat3Cmp
 Сравнение матриц a и b.
 */
 mbool_t Mat3Cmp( const mat3_t* a, const mat3_t* b ) {
-
+    return Vec3Cmp(&a->a, &b->a) && Vec3Cmp(&a->b, &b->b) && Vec3Cmp(&a->c, &b->c);
 }
 
+/*
+Mat3CmpEps
+
+Сравнить две матрицы a и b с использованием епсилона eps. 
+Если значения обеих матриц лежат в пределах eps, 
+то результат - mtrue, иначе - mfalse.
+*/
 mbool_t Mat3CmpEps( const mat3_t* a, const mat3_t* b, float eps ) {
 
 }
 
+/*
+Mat3IsDiag
+
+Возвращает mtrue если матрица m является диагональной (используется eps).
+Иначе возвращает mfalse.
+*/
 mbool_t Mat3IsDiag( const mat3_t* m ) {
 
 }
@@ -506,9 +555,27 @@ void Mat3ToPrettyStr( char* out, const mat3_t* m, int prec ) {
              prec, m->m[6], prec, m->m[7], prec, m->m[8] );
 }
 
-void Mat3ToMat2( mat2_t* out, const mat3_t* m );
-void Mat3ToMat4( mat4_t* out, const mat3_t* m );
+/*
+Mat3ToMat2
 
+Преобразование матрицы из типа mat3_t в mat2_t.
+*/
+void Mat3ToMat2( mat2_t* out, const mat3_t* m ) {
+    Vec3ToVec2(&out->a, &m->a);
+    Vec3ToVec2(&out->b, &m->b);
+}
+
+/*
+Mat3ToMat2
+
+Преобразование матрицы из типа mat3_t в mat4_t.
+*/
+void Mat3ToMat4( mat4_t* out, const mat3_t* m ) {
+    Vec3ToVec4(&out->a, &m->a);
+    Vec3ToVec4(&out->b, &m->b);
+    Vec3ToVec4(&out->c, &m->c);
+    Vec4Zero(&out->d);
+}
 
 /*
 Mat4Set
@@ -711,18 +778,45 @@ void Mat4Scale( mat4_t* m, float s ) {
     m->m[15] *= s;
 }
 
-void Mat4MulVec4( vec4_t* out, const mat4_t* m, const vec4_t* v ) {
+/*
+Mat4MulVec4
 
+Умножить матрицу 4-ого порядка на вектор столбец 4-ого порядка.
+*/
+void Mat4MulVec4( vec4_t* out, const mat4_t* m, const vec4_t* v ) {
+    out->x = m->m[0] * v->m[0] + m->m[1] * v->m[1] + m->m[2] * v->m[2] + m->m[3] * v->m[3];
+    out->y = m->m[4] * v->m[0] + m->m[5] * v->m[1] + m->m[6] * v->m[2] + m->m[7] * v->m[3]; 
+    out->z = m->m[8] * v->m[0] + m->m[9] * v->m[1] + m->m[10] * v->m[2] + m->m[11] * v->m[3]; 
+    out->w = m->m[12] * v->m[0] + m->m[13] * v->m[1] + m->m[14] * v->m[2] + m->m[15] * v->m[3]; 
 }
 
+/*
+Mat4MulVec3
+
+Умножить матрицу 4-ого порядка на вектор-столбец 3-го порядка.
+*/
 void Mat4MulVec3( vec3_t* out, const mat4_t* m, const vec3_t* v ) {
 
 }
 
-void Vec4MulMat4( vec4_t* out, const vec4_t* v, const mat4_t* m ) {
+/*
+Vec4MulMat4
 
+Умножить вектор-строку 4-ого порядка на матрицу 4-ого порядка.
+*/
+void Vec4MulMat4( vec4_t* out, const vec4_t* v, const mat4_t* m ) {
+    out->x = v->m[0] * m->m[0] + v->m[1] * m->m[4] + v->m[0] * m->m[8] + v->m[0] * m->m[12];
+    out->y = v->m[0] * m->m[1] + v->m[1] * m->m[5] + v->m[0] * m->m[9] + v->m[0] * m->m[13];
+    out->z = v->m[0] * m->m[2] + v->m[1] * m->m[6] + v->m[0] * m->m[10] + v->m[0] * m->m[14];
+    out->w = v->m[0] * m->m[3] + v->m[1] * m->m[7] + v->m[0] * m->m[11] + v->m[0] * m->m[15];
 }
 
+
+/*
+Mat4Mul
+
+Умножить матрицу a на матрицу b.
+*/
 void Mat4Mul( mat4_t* out, const mat4_t* a, const mat4_t* b ) {
     out->m[0]  = a->m[0] * b->m[0];
     out->m[1]  = a->m[1] * b->m[1];
@@ -814,14 +908,32 @@ void Mat4Copy( mat4_t* m, const mat4_t* a ) {
     m->m[15] = a->m[15];
 }
 
+/*
+Mat4Cmp
+
+Сравнение матриц a и b.
+*/
 mbool_t Mat4Cmp( const mat4_t* a, const mat4_t* b ) {
-    
+    return Vec4Cmp(&a->a, &b->a) && Vec4Cmp(&a->b, &b->b) && Vec4Cmp(&a->c, &b->c) && Vec4Cmp(&a->d, &b->d);
 }
 
+/*
+Mat4CmpEps
+
+Сравнение матриц a и b с использованием епсилона eps. 
+Если значения обеих матриц лежат в пределах eps, 
+то результат - mtrue, иначе - mfalse.
+*/
 mbool_t Mat4CmpEps( const mat4_t* a, const mat4_t* b, float eps ) {
 
 }
 
+/*
+Mat4IsDiag
+
+Возвращает mtrue если матрица m является диагональной (используется eps). 
+Иначе возвращает mfalse.
+*/
 mbool_t Mat4IsDiag( const mat4_t* m ) {
 
 }
@@ -920,9 +1032,12 @@ void Mat4ToPrettyStr( char* out, const mat4_t* m, int prec ) {
 }
 
 void Mat4ToMat2( mat2_t* out, const mat4_t* m ) {
-
+    Vec4ToVec2(&out->a, &m->a);
+    Vec4ToVec2(&out->b, &m->b);
 }
 
 void Mat4ToMat3( mat3_t* out, const mat4_t* m ) {
-
+    Vec4ToVec3(&out->a, &m->a);
+    Vec4ToVec3(&out->b, &m->b);
+    Vec4ToVec3(&out->c, &m->c);
 }

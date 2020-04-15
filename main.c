@@ -16,15 +16,16 @@ int main() {
     vec2_t v1, v2;
 
     // заполнение переменных
-    Mat2Set4f( &mat2, 9.0f, 5.0f, 2.0f, 4.0f );
-    Vec2Set( &v1, 2.0f, 4.0f );
+    Mat2Set4f( &mat2, 3.0f, 2.0f, 7.0f, 6.0f );
+    Vec2Set( &v1, 5.0f, 3.0f );
 
     // умножение матрицы mat2 на вектор v1
-    Mat2MulVec2( &v2, &mat2, &v1 ); 
+    // Mat2MulVec2( &v2, &mat2, &v1 ); 
+    // Vec2MulMat2( &v2, &v1, &mat2 );
 
     // вывод переменных
-    Mat2ToPrettyStr( out, &mat2, 0 ); printf( "%s\n", out );
-    Vec2ToStr( out, &v1, 0 ); printf( "X\n%s\n", out );
+    Vec2ToStr( out, &v1, 0 ); printf( "%s\n", out ); // вектор
+    Mat2ToPrettyStr( out, &mat2, 0 ); printf( "X\n%s\n", out ); // матрица
     Vec2ToStr( out, &v2, 0 ); printf( "=\n%s\n", out ); // результат умножения
     
     /*
