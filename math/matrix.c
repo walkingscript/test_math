@@ -84,12 +84,14 @@ mbool_t Mat2Inv( mat2_t* m ) {
         return mfalse;
     }
 
+    float inv_det = 1 / det;
+
     // делим алгебраическое дополнение на детерминант
     mat2_t buf; 
-    buf.m[0] = m->b.y / det;
-    buf.m[1] = (-m->b.x) / det;
-    buf.m[2] = (-m->a.y) / det; 
-    buf.m[3] = m->a.x / det;
+    buf.m[0] = m->b.y * inv_det;
+    buf.m[1] = (-m->b.x) * inv_det;
+    buf.m[2] = (-m->a.y) * inv_det; 
+    buf.m[3] = m->a.x * inv_det;
 
     Mat2Transp( &buf ); // транспонируем матрицу
     Mat2Copy( m, &buf ); // пишем результат в исходную матрицу
@@ -161,7 +163,12 @@ mbool_t Mat2Cmp( const mat2_t* a, const mat2_t* b ) {
 }
 
 mbool_t Mat2CmpEps( const mat2_t* a, const mat2_t* b, float eps ) {
-
+    if( Vec2CmpEps( &a->a, &b->a, eps ) &&
+        Vec2CmpEps( &a->b, &b->b, eps ) 
+    ) {
+        return mtrue;
+    }
+    return mfalse;
 }
 
 mbool_t Mat2IsDiag( const mat2_t* m ) {
@@ -177,7 +184,13 @@ Mat2IsIdent
 диагонали равны 0.
 */
 mbool_t Mat2IsIdent( const mat2_t* m ) {
-    
+    if( ( ( ( m->a.x <= 1.0f + FLOAT_EPSILON ) && ( m->a.x >= 1.0f - FLOAT_EPSILON ) )
+       && ( ( m->b.y <= 1.0f + FLOAT_EPSILON ) && ( m->b.y >= 1.0f - FLOAT_EPSILON ) ) )
+      && ( ( m->m[1] == 0.0f ) && ( m->m[2] == 0.0f ) )
+    ) {
+        return mtrue;
+    }
+    return mfalse;
 }
 
 /*
@@ -353,17 +366,19 @@ mbool_t Mat3Inv( mat3_t* m ) {
         return mfalse;
     }
 
+    float inv_det = 1 / det;
+
     // деление алгебраического дополнения на определитель
     mat3_t buf;
-    buf.m[0] = ( m->b.y * m->c.z - m->b.z * m->c.y ) / det;
-    buf.m[1] = -( m->b.x * m->c.z - m->b.z * m->c.x ) / det;
-    buf.m[2] = ( m->b.x * m->c.y - m->b.y * m->c.x ) / det;
-    buf.m[3] = -( m->a.y * m->c.z - m->a.z * m->c.y ) / det;
-    buf.m[4] = ( m->a.x * m->c.z - m->a.z * m->c.x ) / det;
-    buf.m[5] = -( m->a.x * m->c.y - m->a.y * m->c.x ) / det;
-    buf.m[6] = ( m->a.y * m->b.z - m->a.z * m->b.y ) / det;
-    buf.m[7] = -( m->a.x * m->b.z - m->a.z * m->b.x ) / det;
-    buf.m[8] = ( m->a.x * m->b.y - m->a.y * m->b.x ) / det;
+    buf.m[0] = ( m->b.y * m->c.z - m->b.z * m->c.y ) * inv_det;
+    buf.m[1] = -( m->b.x * m->c.z - m->b.z * m->c.x ) * inv_det;
+    buf.m[2] = ( m->b.x * m->c.y - m->b.y * m->c.x ) * inv_det;
+    buf.m[3] = -( m->a.y * m->c.z - m->a.z * m->c.y ) * inv_det;
+    buf.m[4] = ( m->a.x * m->c.z - m->a.z * m->c.x ) * inv_det;
+    buf.m[5] = -( m->a.x * m->c.y - m->a.y * m->c.x ) * inv_det;
+    buf.m[6] = ( m->a.y * m->b.z - m->a.z * m->b.y ) * inv_det;
+    buf.m[7] = -( m->a.x * m->b.z - m->a.z * m->b.x ) * inv_det;
+    buf.m[8] = ( m->a.x * m->b.y - m->a.y * m->b.x ) * inv_det;
 
     Mat3Transp( &buf ); // транспонирование матрицы
     Mat3Copy( m, &buf ); // запись результата в исходную матрицу
@@ -478,7 +493,13 @@ Mat3CmpEps
 то результат - mtrue, иначе - mfalse.
 */
 mbool_t Mat3CmpEps( const mat3_t* a, const mat3_t* b, float eps ) {
-
+    if( Vec3CmpEps( &a->a, &b->a, eps ) &&
+        Vec3CmpEps( &a->b, &b->b, eps ) && 
+        Vec3CmpEps( &a->c, &b->c, eps ) 
+    ) {
+        return mtrue;
+    }
+    return mfalse;
 }
 
 /*
@@ -497,7 +518,16 @@ Mat3IsIdent
 Вернуть mtrue если матрица m является единичной (используется eps). Иначе вернуть mfalse.
 */
 mbool_t Mat3IsIdent( const mat3_t* m ) {
-
+    if( ( ( ( m->a.x <= 1.0f + FLOAT_EPSILON ) && ( m->a.x >= 1.0f - FLOAT_EPSILON ) )
+       && ( ( m->b.y <= 1.0f + FLOAT_EPSILON ) && ( m->b.y >= 1.0f - FLOAT_EPSILON ) )
+       && ( ( m->c.z <= 1.0f + FLOAT_EPSILON ) && ( m->c.z >= 1.0f - FLOAT_EPSILON ) ) )
+     && ( ( m->m[1] == 0.0f ) && ( m->m[2] == 0.0f )
+       && ( m->m[3] == 0.0f ) && ( m->m[5] == 0.0f )
+       && ( m->m[6] == 0.0f ) && ( m->m[7] == 0.0f ) )
+    ) {
+        return mtrue;
+    }
+    return mfalse;
 }
 
 /*
@@ -714,39 +744,41 @@ mbool_t Mat4Inv( mat4_t* m ) {
         return mfalse;
     }
 
+    float inv_det = 1 / det;
+
     mat4_t buf; // матрица алгебраических дополнений
     buf.m[0] = ( m->m[5] * m->m[10] * m->m[15] + m->m[6] * m->m[11] * m->m[13] + m->m[7] * m->m[9] * m->m[14] 
-               - m->m[7] * m->m[10] * m->m[13] - m->m[6] * m->m[9] * m->m[15] - m->m[5] * m->m[11] * m->m[14] ) / det;
+               - m->m[7] * m->m[10] * m->m[13] - m->m[6] * m->m[9] * m->m[15] - m->m[5] * m->m[11] * m->m[14] ) * inv_det;
     buf.m[1] = -( m->m[4] * m->m[10] * m->m[15] + m->m[6] * m->m[11] * m->m[12] + m->m[7] * m->m[8] * m->m[14] 
-                - m->m[7] * m->m[10] * m->m[12] - m->m[6] * m->m[8] * m->m[15] - m->m[4] * m->m[11] * m->m[14] ) / det;
+                - m->m[7] * m->m[10] * m->m[12] - m->m[6] * m->m[8] * m->m[15] - m->m[4] * m->m[11] * m->m[14] ) * inv_det;
     buf.m[2] = ( m->m[4] * m->m[9] * m->m[15] + m->m[5] * m->m[11] * m->m[12] + m->m[7] * m->m[8] * m->m[13] 
-               - m->m[7] * m->m[9] * m->m[12] - m->m[5] * m->m[8] * m->m[15] - m->m[4] * m->m[11] * m->m[13] ) / det;
+               - m->m[7] * m->m[9] * m->m[12] - m->m[5] * m->m[8] * m->m[15] - m->m[4] * m->m[11] * m->m[13] ) * inv_det;
     buf.m[3] = -( m->m[4] * m->m[9] * m->m[14] + m->m[5] * m->m[10] * m->m[12] + m->m[6] * m->m[8] * m->m[13] 
-                - m->m[6] * m->m[9] * m->m[12] - m->m[5] * m->m[8] * m->m[14] - m->m[4] * m->m[10] * m->m[13] ) / det;
+                - m->m[6] * m->m[9] * m->m[12] - m->m[5] * m->m[8] * m->m[14] - m->m[4] * m->m[10] * m->m[13] ) * inv_det;
     buf.m[4] = -( m->m[1] * m->m[10] * m->m[15] + m->m[2] * m->m[11] * m->m[13] + m->m[3] * m->m[9] * m->m[14] 
-                - m->m[3] * m->m[10] * m->m[13] - m->m[2] * m->m[9] * m->m[15] - m->m[1] * m->m[11] * m->m[14] ) / det;
+                - m->m[3] * m->m[10] * m->m[13] - m->m[2] * m->m[9] * m->m[15] - m->m[1] * m->m[11] * m->m[14] ) * inv_det;
     buf.m[5] = ( m->m[0] * m->m[10] * m->m[15] + m->m[2] * m->m[11] * m->m[12] + m->m[3] * m->m[8] * m->m[14] 
-               - m->m[3] * m->m[10] * m->m[12] - m->m[2] * m->m[8] * m->m[15] - m->m[0] * m->m[11] * m->m[14] ) / det;
+               - m->m[3] * m->m[10] * m->m[12] - m->m[2] * m->m[8] * m->m[15] - m->m[0] * m->m[11] * m->m[14] ) * inv_det;
     buf.m[6] = -( m->m[0] * m->m[9] * m->m[15] + m->m[1] * m->m[11] * m->m[12] + m->m[3] * m->m[8] * m->m[13] 
-                - m->m[3] * m->m[9] * m->m[12] - m->m[1] * m->m[8] * m->m[15] - m->m[0] * m->m[11] * m->m[13] ) / det;
+                - m->m[3] * m->m[9] * m->m[12] - m->m[1] * m->m[8] * m->m[15] - m->m[0] * m->m[11] * m->m[13] ) * inv_det;
     buf.m[7] = ( m->m[0] * m->m[9] * m->m[14] + m->m[1] * m->m[10] * m->m[12] + m->m[2] * m->m[8] * m->m[13] 
-               - m->m[2] * m->m[9] * m->m[12] - m->m[1] * m->m[8] * m->m[14] - m->m[0] * m->m[10] * m->m[13] ) / det;
+               - m->m[2] * m->m[9] * m->m[12] - m->m[1] * m->m[8] * m->m[14] - m->m[0] * m->m[10] * m->m[13] ) * inv_det;
     buf.m[8] = ( m->m[1] * m->m[6] * m->m[15] + m->m[2] * m->m[7] * m->m[13] + m->m[3] * m->m[5] * m->m[14] 
-               - m->m[3] * m->m[6] * m->m[13] - m->m[2] * m->m[5] * m->m[15] - m->m[1] * m->m[7] * m->m[14] ) / det;
+               - m->m[3] * m->m[6] * m->m[13] - m->m[2] * m->m[5] * m->m[15] - m->m[1] * m->m[7] * m->m[14] ) * inv_det;
     buf.m[9] = -( m->m[0] * m->m[6] * m->m[15] + m->m[2] * m->m[7] * m->m[12] + m->m[3] * m->m[4] * m->m[14] 
-                - m->m[3] * m->m[6] * m->m[12] - m->m[2] * m->m[4] * m->m[15] - m->m[0] * m->m[7] * m->m[14] ) / det;
+                - m->m[3] * m->m[6] * m->m[12] - m->m[2] * m->m[4] * m->m[15] - m->m[0] * m->m[7] * m->m[14] ) * inv_det;
     buf.m[10] = ( m->m[0] * m->m[5] * m->m[15] + m->m[1] * m->m[7] * m->m[12] + m->m[3] * m->m[4] * m->m[13] 
-                - m->m[3] * m->m[5] * m->m[12] - m->m[1] * m->m[4] * m->m[15] - m->m[0] * m->m[7] * m->m[13] ) / det;
+                - m->m[3] * m->m[5] * m->m[12] - m->m[1] * m->m[4] * m->m[15] - m->m[0] * m->m[7] * m->m[13] ) * inv_det;
     buf.m[11] = -( m->m[0] * m->m[5] * m->m[14] + m->m[1] * m->m[6] * m->m[12] + m->m[2] * m->m[4] * m->m[13]
-                 - m->m[2] * m->m[5] * m->m[12] - m->m[1] * m->m[4] * m->m[14] - m->m[0] * m->m[6] * m->m[13] ) / det;   
+                 - m->m[2] * m->m[5] * m->m[12] - m->m[1] * m->m[4] * m->m[14] - m->m[0] * m->m[6] * m->m[13] ) * inv_det;   
     buf.m[12] = -( m->m[1] * m->m[6] * m->m[11] + m->m[2] * m->m[7] * m->m[9] + m->m[3] * m->m[5] * m->m[10]
-                 - m->m[3] * m->m[6] * m->m[9] - m->m[2] * m->m[5] * m->m[11] - m->m[1] * m->m[7] * m->m[10] ) / det;
+                 - m->m[3] * m->m[6] * m->m[9] - m->m[2] * m->m[5] * m->m[11] - m->m[1] * m->m[7] * m->m[10] ) * inv_det;
     buf.m[13] = ( m->m[0] * m->m[6] * m->m[11] + m->m[2] * m->m[7] * m->m[8] + m->m[3] * m->m[4] * m->m[10] 
-                - m->m[3] * m->m[6] * m->m[8] - m->m[2] * m->m[4] * m->m[11] - m->m[0] * m->m[7] * m->m[10] ) / det;
+                - m->m[3] * m->m[6] * m->m[8] - m->m[2] * m->m[4] * m->m[11] - m->m[0] * m->m[7] * m->m[10] ) * inv_det;
     buf.m[14] = -( m->m[0] * m->m[5] * m->m[11] + m->m[1] * m->m[7] * m->m[8] + m->m[3] * m->m[4] * m->m[9] 
-                 - m->m[3] * m->m[5] * m->m[8] - m->m[1] * m->m[4] * m->m[11] - m->m[0] * m->m[9] * m->m[7] ) / det;
+                 - m->m[3] * m->m[5] * m->m[8] - m->m[1] * m->m[4] * m->m[11] - m->m[0] * m->m[9] * m->m[7] ) * inv_det;
     buf.m[15] = ( m->m[0] * m->m[5] * m->m[10] + m->m[1] * m->m[6] * m->m[8] + m->m[2] * m->m[4] * m->m[9] 
-                - m->m[2] * m->m[5] * m->m[8] - m->m[1] * m->m[4] * m->m[10] - m->m[0] * m->m[6] * m->m[9] ) / det;
+                - m->m[2] * m->m[5] * m->m[8] - m->m[1] * m->m[4] * m->m[10] - m->m[0] * m->m[6] * m->m[9] ) * inv_det;
 
     Mat4Transp( &buf );
     Mat4Copy( m, &buf);
@@ -796,7 +828,18 @@ Mat4MulVec3
 Умножить матрицу 4-ого порядка на вектор-столбец 3-го порядка.
 */
 void Mat4MulVec3( vec3_t* out, const mat4_t* m, const vec3_t* v ) {
+    vec4_t buf;
 
+    buf.x = m->a.x * v->x + m->a.y * v->y + m->a.z * v->z + m->a.w * 1.0f;
+    buf.y = m->b.x * v->x + m->b.y * v->y + m->b.z * v->z + m->b.w * 1.0f;
+    buf.z = m->c.x * v->x + m->c.y * v->y + m->c.z * v->z + m->c.w * 1.0f;
+    buf.w = m->d.x * v->x + m->d.y * v->y + m->d.z * v->z + m->d.w * 1.0f;
+
+    if ( buf.w == 0.0f ) {
+        buf.w = 1.0f;
+    }
+
+    Vec4ToVec3( out, &buf );
 }
 
 /*
@@ -925,7 +968,14 @@ Mat4CmpEps
 то результат - mtrue, иначе - mfalse.
 */
 mbool_t Mat4CmpEps( const mat4_t* a, const mat4_t* b, float eps ) {
-
+    if( Vec4CmpEps( &a->a, &b->a, eps ) &&
+        Vec4CmpEps( &a->b, &b->b, eps ) && 
+        Vec4CmpEps( &a->c, &b->c, eps ) &&
+        Vec4CmpEps( &a->d, &b->d, eps )
+    ) {
+        return mtrue;
+    }
+    return mfalse;
 }
 
 /*
@@ -945,7 +995,18 @@ Mat4IsIdent
 Иначе вернуть mfalse.
 */
 mbool_t Mat4IsIdent( const mat4_t* m ) {
-
+    if( ( ( ( m->a.x <= 1.0f + FLOAT_EPSILON ) && ( m->a.x >= 1.0f - FLOAT_EPSILON ) )
+       && ( ( m->b.y <= 1.0f + FLOAT_EPSILON ) && ( m->b.y >= 1.0f - FLOAT_EPSILON ) )
+       && ( ( m->c.z <= 1.0f + FLOAT_EPSILON ) && ( m->c.z >= 1.0f - FLOAT_EPSILON ) )
+       && ( ( m->d.w <= 1.0f + FLOAT_EPSILON ) && ( m->d.w >= 1.0f - FLOAT_EPSILON ) ) )
+       && ( ( m->m[1] == 0.0f ) && ( m->m[2] == 0.0f ) && ( m->m[3] == 0.0f ) 
+         && ( m->m[4] == 0.0f ) && ( m->m[6] == 0.0f ) && ( m->m[7] == 0.0f ) 
+         && ( m->m[8] == 0.0f ) && ( m->m[9] == 0.0f ) && ( m->m[11] == 0.0f )
+         && ( m->m[12] == 0.0f ) && ( m->m[13] == 0.0f ) && ( m->m[14] == 0.0f ) )
+    ) {
+        return mtrue;
+    }
+    return mfalse;
 }
 
 /*
@@ -1013,7 +1074,7 @@ void Mat4ToStr( char* out, const mat4_t* m, int prec ) {
              prec, m->m[0],  prec, m->m[1],  prec, m->m[2],  prec, m->m[3],
              prec, m->m[4],  prec, m->m[5],  prec, m->m[6],  prec, m->m[7],
              prec, m->m[8],  prec, m->m[9],  prec, m->m[10], prec, m->m[11],
-             prec, m->m[12], prec, m->m[13], prec, m->m[14], prec, m->m[15]);
+             prec, m->m[12], prec, m->m[13], prec, m->m[14], prec, m->m[15] );
 }
 
 /*
@@ -1028,7 +1089,7 @@ void Mat4ToPrettyStr( char* out, const mat4_t* m, int prec ) {
              prec, m->m[0],  prec, m->m[1],  prec, m->m[2],  prec, m->m[3],
              prec, m->m[4],  prec, m->m[5],  prec, m->m[6],  prec, m->m[7],
              prec, m->m[8],  prec, m->m[9],  prec, m->m[10], prec, m->m[11],
-             prec, m->m[12], prec, m->m[13], prec, m->m[14], prec, m->m[15]);
+             prec, m->m[12], prec, m->m[13], prec, m->m[14], prec, m->m[15] );
 }
 
 void Mat4ToMat2( mat2_t* out, const mat4_t* m ) {

@@ -16,7 +16,16 @@ int main() {
     vec2_t v1, v2;
 
     // заполнение переменных
-    Mat2Set4f( &mat2, 3.0f, 2.0f, 7.0f, 6.0f );
+    Mat2Set4f( &mat2, 1.0f, 0.0f, 
+                      0.0f, 1.0f );
+
+    if( Mat2IsIdent(&mat2) ) {
+        printf("%s", "2 - Ident\n");
+    } else {
+        printf("%s", "2 - NOT ident\n");
+    }
+    
+
     Vec2Set( &v1, 5.0f, 3.0f );
 
     // умножение матрицы mat2 на вектор v1
@@ -38,11 +47,19 @@ int main() {
     /*------------------------------------------------------------------------*/
 
     /* Матрицы 3-го порядка */
-    /*
+    
     mat3_t mat3;
-    Mat3Set9f( &mat3, 5.0f, 4.0f, 8.0f, 
-                      9.0f, 2.0f, 3.0f,
-                      4.0f, 5.0f, 6.0f );
+    Mat3Set9f( &mat3, 1.0f + FLOAT_EPSILON, 0.0f, 0.0f, 
+                      0.0f, 1.0f - FLOAT_EPSILON, 0.0f,
+                      0.0f, 0.0f, 1.0f - FLOAT_EPSILON );
+    
+    if( Mat3IsIdent(&mat3) ) {
+        printf("%s", "3 - Ident\n");
+    } else {
+        printf("%s", "3 - NOT ident\n");
+    }
+
+    /*
 
     float det_mat3 = Mat3Det( &mat3 ); // детерминант
     printf("det = %.*f\n", 3, det_mat3);
@@ -59,22 +76,52 @@ int main() {
 
 
     /* Матрицы 4-ого порядка */
-    /*
+    
     mat4_t mat4;
+    /*
     Mat4Set16f( &mat4, 6.0f, 8.0f, 2.0f, 9.0f,
                        2.0f, 3.0f, 2.0f, 1.0f,
                        5.0f, 7.0f, 6.0f, 8.0f,
                        7.0f, 3.0f, 9.0f, 4.0f );
+    */
+
+    Mat4Set16f( &mat4, 1.0f + FLOAT_EPSILON, 0.0f, 0.0f, 0.0f,
+                       0.0f, 1.0f + FLOAT_EPSILON, 0.0f, 0.0f,
+                       0.0f, 0.0f, 1.0f - FLOAT_EPSILON, 0.0f,
+                       0.0f, 0.0f, 0.0f, 1.0f + FLOAT_EPSILON);
+
+    if( Mat4IsIdent(&mat4) ) {
+        printf("%s", "4 - Ident\n");
+    } else {
+        printf("%s", "4 - NOT ident\n");
+    }
+
+
     
+    Mat4Set16f( &mat4, 6.0f, 8.0f, 2.0f, 9.0f,
+                       2.0f, 3.0f, 2.0f, 1.0f,
+                       5.0f, 7.0f, 6.0f, 8.0f,
+                       7.0f, 3.0f, 9.0f, 4.0f );
+   
+     
     Mat4ToPrettyStr( out, &mat4, 0 );
     printf("%s\n", out);
+    
+    mat4_t test_mat;
+    Mat4Copy(&test_mat, &mat4);
 
-    Mat4Inv( &mat4 );
+    Mat4Inv( &test_mat );
 
-    Mat4ToPrettyStr( out, &mat4, 5 );
+    Mat4ToPrettyStr( out, &test_mat, 5 );
     printf("%s\n", out);
 
-    */
+    mat4_t test_mat_res;
+    Mat4Mul( &test_mat_res, &mat4, &test_mat );
+
+    Mat4ToPrettyStr( out, &test_mat_res, 5 );
+    printf("%s\n", out);
+
+    
 
     /*----------------------------------------------------------------------*/
 

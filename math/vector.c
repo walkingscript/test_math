@@ -242,7 +242,7 @@ Vec2ToVec3
 void Vec2ToVec3( vec3_t* out, const vec2_t* v ) {
     out->x = v->x;
     out->y = v->y;
-    out->z = 0.0f;
+    out->z = 1.0f;
 }
 
 /*
@@ -253,8 +253,8 @@ Vec2ToVec4
 void Vec2ToVec4( vec4_t* out, const vec2_t* v ) {
     out->x = v->x;
     out->y = v->y;
-    out->z = 0.0f;
-    out->w = 0.0f;
+    out->z = 1.0f;
+    out->w = 1.0f;
 }
 
 /*
@@ -526,8 +526,9 @@ Vec3ToVec2
 Преобразование из трёхмерного вектора в двумерный вектор.
 */
 void Vec3ToVec2( vec2_t* out, const vec3_t* v ) {
-    out->x = v->x;
-    out->y = v->y;
+    float z = 1 / v->z;
+    out->x = v->x * z;
+    out->y = v->y * z;
 }
 
 /*
@@ -539,7 +540,7 @@ void Vec3ToVec4( vec4_t* out, const vec3_t* v ) {
     out->x = v->x;
     out->y = v->y;
     out->z = v->z;
-    out->w = 0.0f;
+    out->w = 1.0f;
 }
 
 /*
@@ -800,6 +801,7 @@ Vec4ToVec2
 Преобразование из четырёхмерного вектора в двумерный.
 */
 void Vec4ToVec2( vec2_t* out, const vec4_t* v ) {
+    // TODO: переделать преобразование
     out->x = v->x;
     out->y = v->y;
 }
@@ -810,7 +812,8 @@ Vec4ToVec3
 Преобразование из четырёхмерного вектора в трёхмерный.
 */
 void Vec4ToVec3( vec3_t* out, const vec4_t* v ) {
-    out->x = v->x;
-    out->y = v->y;
-    out->z = v->z;
+    float w = 1.0f / v->w;
+    out->x = v->x * w;
+    out->y = v->y * w;
+    out->z = v->z * w; 
 }
