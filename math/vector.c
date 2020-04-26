@@ -801,9 +801,9 @@ Vec4ToVec2
 Преобразование из четырёхмерного вектора в двумерный.
 */
 void Vec4ToVec2( vec2_t* out, const vec4_t* v ) {
-    // TODO: переделать преобразование
-    out->x = v->x;
-    out->y = v->y;
+    vec3_t buf;
+    Vec4ToVec3( v, &buf );
+    Vec3ToVec2( &buf, out );
 }
 
 /*

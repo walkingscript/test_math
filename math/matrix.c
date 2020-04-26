@@ -159,7 +159,7 @@ Mat2Cmp
 Сравнение матриц.
 */
 mbool_t Mat2Cmp( const mat2_t* a, const mat2_t* b ) {
-    return Vec2Cmp(&a->a, &b->a) && Vec2Cmp(&a->b, &b->b);
+    return Vec2Cmp( &a->a, &b->a ) && Vec2Cmp( &a->b, &b->b );
 }
 
 mbool_t Mat2CmpEps( const mat2_t* a, const mat2_t* b, float eps ) {
